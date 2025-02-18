@@ -16,6 +16,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int currentPageIndex = 0;
 
   @override
   void initState() {
@@ -26,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Expense Tracker"),),
+      appBar: AppBar(title: Text("Expense Tracker")),
       // body: BlocBuilder<ExpenseBloc, ExpenseState>(
       //   builder: (context, state) {
       //     if (state is ExpenseLoadingState) {
@@ -52,14 +53,28 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AddExpenseScreen()),
-          );
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     Navigator.push(
+      //       context,
+      //       MaterialPageRoute(builder: (context) => AddExpenseScreen()),
+      //     );
+      //   },
+      //   child: Icon(Icons.add),
+      // ),
+      bottomNavigationBar: NavigationBar(
+        onDestinationSelected: (int index) {
+          setState(() {
+            currentPageIndex = index;
+          });
         },
-        child: Icon(Icons.add),
+        indicatorColor: Colors.amber,
+        selectedIndex: currentPageIndex,
+        destinations: const <Widget>[
+          NavigationDestination(icon: Icon(Icons.home), label: "Home"),
+          NavigationDestination(icon: Icon(Icons.add), label: "Add"),
+          NavigationDestination(icon: Icon(Icons.person), label: "Profile"),
+        ],
       ),
     );
   }
@@ -74,10 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
         SizedBox(height: 8),
         Text(
           "\$292.50", // This should be dynamically calculated
-          style: TextStyle(
-            fontSize: 40,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
         ),
       ],
     );
@@ -97,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
               return _buildExpenseItem(expenses[index]);
             },
           );
-        } else if(state is ExpenseAddedState) {
+        } else if (state is ExpenseAddedState) {
           final expenses = state.expenses;
           return ListView.separated(
             itemCount: expenses.length,
@@ -106,8 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
               return _buildExpenseItem(expenses[index]);
             },
           );
-        }
-        else {
+        } else {
           return Center(child: Text("No expenses found"));
         }
       },

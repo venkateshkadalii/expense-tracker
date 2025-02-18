@@ -7,10 +7,13 @@ import 'package:expense_tracker/domain/usecases/get_expenses.dart';
 import 'package:expense_tracker/presentation/bloc/expense_bloc.dart';
 import 'package:expense_tracker/presentation/screens/home_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/adapters.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   await Hive.initFlutter();
   Hive.registerAdapter<ExpenseModel>(ExpenseModelAdapter());
   await Hive.openBox<ExpenseModel>('expenseBox');
