@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 
 class DropdownWidget extends StatefulWidget {
-  const DropdownWidget({super.key});
+  final ValueChanged<String> onSelected;
+  final String value;
+
+  const DropdownWidget({
+    super.key,
+    required this.onSelected,
+    required this.value,
+  });
 
   @override
   State<DropdownWidget> createState() => _DropdownWidgetState();
@@ -14,7 +21,7 @@ class _DropdownWidgetState extends State<DropdownWidget> {
     "Shopping",
     "Entertainment",
     "Travel",
-    "Other"
+    "Other",
   ];
 
   @override
@@ -24,17 +31,12 @@ class _DropdownWidgetState extends State<DropdownWidget> {
         prefixIcon: Icon(Icons.category, color: Colors.grey),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
       ),
-      value: selectedCategory,
+      value: widget.value,
       items:
           categories.map((category) {
-            return DropdownMenuItem(
-                value: category, child: Text(category));
+            return DropdownMenuItem(value: category, child: Text(category));
           }).toList(),
-      onChanged: (value) {
-        setState(() {
-          selectedCategory = value as String;
-        });
-      },
+      onChanged: (value) => widget.onSelected(value!),
     );
   }
 }

@@ -8,7 +8,8 @@ class ExpenseLoadingState extends ExpenseState {}
 
 class ExpenseLoadedState extends ExpenseState {
   final List<Expense> expenses;
-  ExpenseLoadedState(this.expenses);
+  final double totalExpenses;
+  ExpenseLoadedState(this.expenses, this.totalExpenses);
 }
 
 class ExpenseErrorState extends ExpenseState {
@@ -18,6 +19,7 @@ class ExpenseErrorState extends ExpenseState {
 
 class ExpenseAddedState extends ExpenseState {
   final List<Expense> expenses;
+  final double totalExpenses;
 
-  ExpenseAddedState(this.expenses);
+  ExpenseAddedState(this.expenses, this.totalExpenses);
 }

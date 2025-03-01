@@ -14,8 +14,8 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
       emit(ExpenseLoadingState());
       try {
         final expenses = await getExpensesUseCase();
-        print("===========> ex $expenses");
-        emit(ExpenseLoadedState(expenses));
+        _calculateTotalExpense(emit, expenses);
+        // emit(ExpenseLoadedState(expenses));
       } catch(e) {
         emit(ExpenseErrorState(e.toString()));
       }
@@ -25,10 +25,17 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
       try {
         await addExpenseUseCase(event.expense);
         final expenses = await getExpensesUseCase();
-        emit(ExpenseAddedState(expenses));
+        double total = expenses.fold(0, (sum, expense) => sum + expense.amount!);
+        emit(ExpenseAddedState(expenses, total));
       } catch(e) {
+        print(e);
         emit(ExpenseErrorState(e.toString()));
       }
     });
+  }
+
+  void _calculateTotalExpense(Emitter<ExpenseState> emit, List<Expense> expenses) {
+    double total = expenses.fold(0, (sum, expense) => sum + expense.amount!);
+    emit(ExpenseLoadedState(expenses, total));
   }
 }
