@@ -2,6 +2,7 @@ import 'package:expense_tracker/presentation/bloc/expense_bloc.dart';
 import 'package:expense_tracker/presentation/bloc/expense_event.dart';
 import 'package:expense_tracker/presentation/bloc/expense_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/entities/expense.dart';
@@ -27,54 +28,76 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Expense Tracker")),
-      // body: BlocBuilder<ExpenseBloc, ExpenseState>(
-      //   builder: (context, state) {
-      //     if (state is ExpenseLoadingState) {
-      //       return Center(child: CircularProgressIndicator());
-      //     } else if (state is ExpenseLoadedState) {
-      //       return ExpenseList(expenses: state.expenses);
-      //     } else if (state is ExpenseErrorState) {
-      //       return Center(child: Text(state.message));
-      //     } else if(state is ExpenseAddedState) {
-      //       return ExpenseList(expenses: state.expenses);
-      //     }
-      //     return Center(child: Text("No expenses available"));
-      //   },
-      // ),
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.grey[100],
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildTotalSpent(),
-            SizedBox(height: 20),
-            Expanded(child: _buildExpenseList()),
+            const SizedBox(height: 40),
+            const Text("Welcome!", style: TextStyle(color: Colors.grey)),
+            const Text(
+              "Venkatesh Kadali",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.blue, Colors.purple, Colors.red],
+                ),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text('This Month Expenses', style: TextStyle(color: Colors.white, fontSize: 16),),
+                  SizedBox(height: 8,),
+                  Text("\₹4800.00", style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("This Week\n2,500.000", style: TextStyle(color: Colors.white, fontSize: 14)),
+                      Text("Today\n800.00", style: TextStyle(color: Colors.white, fontSize: 14)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: const [
+                Text("Transactions", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text("View All", style: TextStyle(color: Colors.blue)),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: ListView(
+                children: const [
+                  TransactionTile(icon: Icons.fastfood, label: "Food", amount: "-\$45.00", date: "Today", color: Colors.orange),
+                  TransactionTile(icon: Icons.shopping_bag, label: "Shopping", amount: "-\$280.00", date: "Today", color: Colors.purple),
+                  TransactionTile(icon: Icons.movie, label: "Entertainment", amount: "-\$60.00", date: "Yesterday", color: Colors.red),
+                  TransactionTile(icon: Icons.flight, label: "Travel", amount: "-\$250.00", date: "Yesterday", color: Colors.green),
+                ],
+              ),
+            ),
           ],
         ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     Navigator.push(
-      //       context,
-      //       MaterialPageRoute(builder: (context) => AddExpenseScreen()),
-      //     );
-      //   },
-      //   child: Icon(Icons.add),
-      // ),
-      bottomNavigationBar: NavigationBar(
-        onDestinationSelected: (int index) {
-          setState(() {
-            currentPageIndex = index;
-          });
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AddExpenseScreen()),
+          );
         },
-        indicatorColor: Colors.amber,
-        selectedIndex: currentPageIndex,
-        destinations: const <Widget>[
-          NavigationDestination(icon: Icon(Icons.home), label: "Home"),
-          NavigationDestination(icon: Icon(Icons.add), label: "Add"),
-          NavigationDestination(icon: Icon(Icons.person), label: "Profile"),
-        ],
+        backgroundColor: Colors.purple,
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
@@ -146,6 +169,33 @@ class _HomeScreenState extends State<HomeScreen> {
           fontWeight: FontWeight.bold,
           color: isIncome ? Colors.green : Colors.black,
         ),
+      ),
+    );
+  }
+}
+
+class TransactionTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String amount;
+  final String date;
+  final Color color;
+
+  const TransactionTile({super.key, required this.icon, required this.label, required this.amount, required this.date, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: color.withOpacity(0.2),
+          child: Icon(icon, color: color),
+        ),
+        title: Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        subtitle: Text(date, style: const TextStyle(color: Colors.grey)),
+        trailing: Text(amount, style: TextStyle(color: Colors.redAccent, fontSize: 16, fontWeight: FontWeight.bold)),
       ),
     );
   }

@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import '../../domain/entities/expense.dart';
 import '../bloc/expense_bloc.dart';
 import '../bloc/expense_event.dart';
+import '../widgets/dropdown_widget.dart';
+import '../widgets/expense_input_field.dart';
 
 class AddExpenseScreen extends StatefulWidget {
   const AddExpenseScreen({super.key});
@@ -17,6 +19,7 @@ class AddExpenseScreen extends StatefulWidget {
 class _AddExpenseScreenState extends State<AddExpenseScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   DateTime? _selectedDate;
   String? _selectedCategory;
@@ -26,22 +29,30 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     'Transport',
     'Shopping',
     'Bills',
+    'Travel',
     'Other',
   ];
 
-  void _pickDate() async {
+  void _pickDate(BuildContext context) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
+      lastDate: DateTime.now(),
     );
 
     if (pickedDate != null) {
       setState(() {
-        _selectedDate = pickedDate;
+        String formattedDate = DateFormat('dd/MM/yyyy').format(pickedDate);
+        _dateController.text = formattedDate;
       });
     }
+  }
+
+  @override
+  void initState() {
+    setInitialDate();
+    super.initState();
   }
 
   void _saveExpense() {
@@ -60,133 +71,90 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Add Expense")),
+      backgroundColor: Colors.grey[100],
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: Icon(Icons.close, color: Colors.black),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: BlocListener<ExpenseBloc, ExpenseState>(
-          listener:
-              (context, state) => {
-                if (state is ExpenseAddedState)
-                  {Navigator.pop(context)}
-                else if (state is ExpenseErrorState)
-                  {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text(state.message))),
-                  },
-              },
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                // Expense Title Field
-                TextFormField(
-                  controller: _titleController,
-                  textCapitalization: TextCapitalization.words,
-                  decoration: InputDecoration(
-                    labelText: 'Expense Title',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter an expense title';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 16),
-
-                // Amount Field
-                TextFormField(
-                  controller: _amountController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: 'Amount',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter an amount';
-                    }
-                    if (double.tryParse(value) == null) {
-                      return 'Please enter a valid number';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 16),
-
-                // Date Picker Field
-                GestureDetector(
-                  onTap: _pickDate,
-                  child: AbsorbPointer(
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        labelText:
-                            _selectedDate == null
-                                ? 'Pick a Date'
-                                : DateFormat.yMMMd().format(_selectedDate!),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        suffixIcon: Icon(Icons.calendar_today),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 16),
-
-                // Category Dropdown
-                DropdownButtonFormField<String>(
-                  value: _selectedCategory,
-                  items:
-                      _categories.map((category) {
-                        return DropdownMenuItem(
-                          value: category,
-                          child: Text(category),
-                        );
-                      }).toList(),
-                  decoration: InputDecoration(
-                    labelText: 'Select Category',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedCategory = value;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Please select a category';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 24),
-
-                // Save Button
-                ElevatedButton(
-                  onPressed: _saveExpense,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    minimumSize: Size(double.infinity, 50),
-                  ),
-                  child: Text(
-                    'Save Expense',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
-                  ),
-                ),
-              ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Text(
+              "Add Expenses",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 20),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 60),
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: TextField(
+                      autofocus: true,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintStyle: TextStyle(fontSize: 24, color: Colors.black),
+                      ),
+                      keyboardType: TextInputType.number,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 24, color: Colors.black),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20.0,),
+            const DropdownWidget(),
+            const SizedBox(height: 10.0,),
+            const ExpenseInputField(icon: Icons.edit, hintText: "Note"),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: TextField(
+                readOnly: true,
+                controller: _dateController,
+                onTap: () => _pickDate(context),
+                textCapitalization: TextCapitalization.words,
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.calendar_today, color: Colors.grey),
+                  hintText: "Today",
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: ElevatedButton(
+          onPressed: () {},
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 100),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            backgroundColor: Colors.purple,
           ),
+          child: const Text("SAVE", style: TextStyle(color: Colors.white)),
         ),
       ),
     );
+  }
+
+  void setInitialDate() {
+    String formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
+    setState(() {
+      _dateController.text = formattedDate;
+    });
   }
 }

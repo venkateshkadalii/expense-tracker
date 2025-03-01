@@ -13,7 +13,10 @@ import 'package:hive_flutter/adapters.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.dark
+  ));
   await Hive.initFlutter();
   Hive.registerAdapter<ExpenseModel>(ExpenseModelAdapter());
   await Hive.openBox<ExpenseModel>('expenseBox');
